@@ -1,0 +1,23 @@
+{
+    "name": "dependency-injection",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc"
+    },
+    "keywords": [],
+    "author": "Dissonance",
+    "types": "dist/index.d.ts",
+    "files": [
+        "/dist"
+    ],
+    "license": "ISC",
+    "devDependencies": {
+        "@types/node": "^26.6.6",
+        "typescript": "^6.0.2"
+    },
+    "dependencies": {
+        "reflect-metadata": "^0.2.2"
+    }
+}

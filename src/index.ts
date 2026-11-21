@@ -3,6 +3,14 @@ import "reflect-metadata"
 const MODULE_KEY = Symbol("module")
 const INJECTABLE_KEY = Symbol("injectable")
 
+export class DISettings {
+    static throwCircular = true
+
+    static set(settings: { throwCircular?: boolean }) {
+        if(settings.throwCircular !== undefined) DISettings.throwCircular = settings.throwCircular
+    }
+}
+
 export interface Type<T> extends Function {
     new (...args: any[]): T
 }
@@ -49,18 +57,25 @@ function getArguements(type: Type<any>): Type<any>[] {
     return Reflect.getMetadata("design:paramtypes", type) ?? []
 }
 
-function stringifyChain(...chain: Type<any>[] | [Type<any>[]]) {
-    return chain.flat().map(c => c.name).join(" -> ")
+function errorMessage(chain: Array<Type<any> | undefined>, specify?: Type<any>) {
+    const strChain = chain.map(c => c?.name ?? "?").join(" -> ")
+    specify ??= chain.findLast(c => c !== undefined)
+    const specified = specify ? ` (${specify.name} contains circular dependencies)` : ""
+    return `Circular dependency: ${strChain}${specified}`
 }
 
 function resolveInjection<T>(type: Type<T>, scope: Scope, chain: Type<any>[]): T | undefined {
-    if (!type) throw new Error(`Circular dependency: ${stringifyChain(...chain)} -> ?`)
+    if (!type) {
+        if(DISettings.throwCircular) throw new Error(errorMessage([...chain, type]))
+        return undefined
+    }
 
     const exist = <T>scope.injected.get(type)
     if(exist) return exist
     
     if(chain.includes(type)) {
-        throw new Error(`Circular dependency: ${stringifyChain(...chain, type)}`)
+        if(DISettings.throwCircular) throw new Error(errorMessage([...chain, type], chain[chain.length - 1]))
+        return undefined
     }
 
     if(scope !== globalScope && isGlobal(type)) {
@@ -78,7 +93,10 @@ function resolveInjection<T>(type: Type<T>, scope: Scope, chain: Type<any>[]): T
     }
     
     const arguements = getArguements(type).map(a => {
-        if(!a) throw new Error(`Circular dependency: ${stringifyChain(...chain, type)} -> ? (${type.name} contain circular dependencies)`) // hate this chud error
+        if (!a) {
+            if(DISettings.throwCircular) throw new Error(errorMessage([...chain, type, undefined], type))
+            return undefined
+        }
         return resolveInjection(a, scope, [...chain, type])
     })
 

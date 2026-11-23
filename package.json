@@ -1,5 +1,5 @@
 {
-    "name": "dependency-injection",
+    "name": "@diss0nance/dependency-injection",
     "version": "1.0.0",
     "description": "",
     "main": "dist/index.js",
@@ -13,6 +13,10 @@
         "/dist"
     ],
     "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/D1sson4nce/dependency-injection"
+    },
     "devDependencies": {
         "@types/node": "^26.6.6",
         "typescript": "^6.0.2"

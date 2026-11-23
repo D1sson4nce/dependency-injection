@@ -20,7 +20,7 @@ export interface InjectableConfig {
 }
 
 export interface ModuleConfig extends InjectableConfig {
-    injects?: Type<any>[]
+    dependencies?: Type<any>[]
 }
 
 export function Injectable(config?: InjectableConfig) {
@@ -32,7 +32,7 @@ export function Injectable(config?: InjectableConfig) {
 
 export function Module(config?: ModuleConfig) {
     config ??= {}
-    config.injects ??= []
+    config.dependencies ??= []
     return <T extends Type<any>>(constructor: T) => {
         Reflect.defineMetadata(MODULE_KEY, config, constructor)
     }
@@ -111,7 +111,7 @@ function resolveModule<T>(module: Type<T>, chain: Type<any>[] = []) {
 
     const scope: Scope = {
         injected: new Map(),
-        inScope: type => config.injects!.includes(type)
+        inScope: type => config.dependencies!.includes(type)
     }
     
     const arguements = getArguements(module).map(a => resolveInjection(a, scope, [...chain, module]))

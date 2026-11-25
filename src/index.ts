@@ -59,7 +59,7 @@ function getArguements(type: Type<any>): Type<any>[] {
 
 function errorMessage(chain: Array<Type<any> | undefined>, specify?: Type<any>) {
     const strChain = chain.map(c => c?.name ?? "?").join(" -> ")
-    specify ??= chain.findLast(c => c !== undefined)
+    specify ??= chain.slice().reverse().find(c => c !== undefined)
     const specified = specify ? ` (${specify.name} contains circular dependencies)` : ""
     return `Circular dependency: ${strChain}${specified}`
 }
@@ -113,8 +113,13 @@ function resolveModule<T>(module: Type<T>, chain: Type<any>[] = []) {
         injected: new Map(),
         inScope: type => config.dependencies!.includes(type)
     }
+
+    for (const dependency of config.dependencies!) {
+        resolveInjection(dependency, scope, [...chain, module])
+    }
     
-    const arguements = getArguements(module).map(a => resolveInjection(a, scope, [...chain, module]))
+    const arguements = getArguements(module).map(a => scope.injected.get(a))
+    
     return new module(...arguements)
 }
 

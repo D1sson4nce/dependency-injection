@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
-        /* Language and Environment */
-        "target": "es2025", 
+        "target": "es2022", 
         "experimentalDecorators": true,  
         "emitDecoratorMetadata": true,  
         "module": "commonjs", 

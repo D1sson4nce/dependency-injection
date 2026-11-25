@@ -40,6 +40,11 @@ Make sure to mark injectable classes with *Injectable*
 class Users { }
 ```
 
+You build a module using *buildModule*
+```typescript
+const login = buildModule(Login)
+```
+
 ### Injecting Modules
 Modules are also injectable, so one module can have another as a dependency.
 ```typescript
